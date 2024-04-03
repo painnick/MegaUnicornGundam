@@ -15,7 +15,11 @@
 
 #define MAIN_TAG "main"
 
+#define INIT_DEGREE 90
+
 #define SERVO1_PIN  0
+
+// Ankle 20(Front)~90(Back)
 #define AnkleLeft_PIN  2
 #define AnkleRight_PIN  3
 
@@ -26,7 +30,7 @@ void getAndAttach16ServosToPCA9685Expander(uint8_t aPCA9685I2CAddress) {
     Serial.println(aPCA9685I2CAddress, HEX);
     for (uint_fast8_t i = 0; i < PCA9685_MAX_CHANNELS; ++i) {
         tServoEasingObjectPtr = new ServoEasing(aPCA9685I2CAddress);
-        if (tServoEasingObjectPtr->attach(i, 90, SG90msForServo0Degree, SG90msForServo180Degree) == INVALID_SERVO) {
+        if (tServoEasingObjectPtr->attach(i, INIT_DEGREE, SG90msForServo0Degree, SG90msForServo180Degree) == INVALID_SERVO) {
             ESP_LOGE(MAIN_TAG, "Not Attached! #%d", i);
         }
     }
@@ -47,22 +51,22 @@ void loop() {
     setSpeedForAllServos(30);
 
     for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(180);
+        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE + 0);
     }
     delay(6000);
 
     for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(90);
+        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE);
     }
     delay(6000);
 
     for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(0);
+        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE - 70);
     }
     delay(6000);
 
     for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(90);
+        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE);
     }
     delay(6000);
 }
