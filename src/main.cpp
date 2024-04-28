@@ -15,7 +15,7 @@
 
 #include <ServoEasing.hpp>
 
-#include "esp_log.h"
+#include <Adafruit_NeoPixel.h>
 
 #define MAIN_TAG "main"
 
