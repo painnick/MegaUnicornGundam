@@ -1,4 +1,8 @@
 #include <Arduino.h>
+#include "esp_log.h"
+
+#include "common.h"
+#include "controllers/Mp3Controller.h"
 
 #define USE_PCA9685_SERVO_EXPANDER
 #define DISABLE_COMPLEX_FUNCTIONS
@@ -15,28 +19,59 @@
 
 #define MAIN_TAG "main"
 
-#define INIT_DEGREE 90
+#define INIT_DEGREE_COMMON 90
+#define INIT_DEGREE_KNEE 45
+#define INIT_DEGREE_ANKLE 30
 
-#define SERVO1_PIN  0
-
-// Ankle 20(Front)~90(Back)
+// Ankle 20(Up tiptoe)~90(Down tiptoe)
 #define AnkleLeft_PIN  2
 #define AnkleRight_PIN  3
+
+// Knee 45(Stand)~90(Fold)
+#define KneeLeft_PIN  4
+#define KneeRight_PIN  5
+
+#define HipJointLeft_PIN 6
+#define HipJointRight_PIN 7
+
+
+#define PIN_STRIP_STAGE 18
+#define STRIP_STAGE_SIZE 4
+Adafruit_NeoPixel stripStage = Adafruit_NeoPixel(STRIP_STAGE_SIZE, PIN_STRIP_STAGE, NEO_GRB + NEO_KHZ800);
 
 void getAndAttach16ServosToPCA9685Expander(uint8_t aPCA9685I2CAddress) {
     ServoEasing *tServoEasingObjectPtr;
 
     Serial.print(F("Get ServoEasing objects and attach servos to PCA9685 expander at address=0x"));
     Serial.println(aPCA9685I2CAddress, HEX);
-    for (uint_fast8_t i = 0; i < PCA9685_MAX_CHANNELS; ++i) {
+    for (int i = 0; i < PCA9685_MAX_CHANNELS; ++i) {
         tServoEasingObjectPtr = new ServoEasing(aPCA9685I2CAddress);
-        if (tServoEasingObjectPtr->attach(i, INIT_DEGREE, SG90msForServo0Degree, SG90msForServo180Degree) == INVALID_SERVO) {
+        int initDegree = INIT_DEGREE_COMMON;
+        switch (i) {
+            case KneeLeft_PIN:
+            case KneeRight_PIN:
+                initDegree = INIT_DEGREE_KNEE;
+                break;
+            case AnkleLeft_PIN:
+            case AnkleRight_PIN:
+                initDegree = INIT_DEGREE_ANKLE;
+                break;
+            default:
+                initDegree = INIT_DEGREE_COMMON;
+        }
+
+        if (tServoEasingObjectPtr->attach(i, initDegree, SG90msForServo0Degree, SG90msForServo180Degree) == INVALID_SERVO) {
             ESP_LOGE(MAIN_TAG, "Not Attached! #%d", i);
         }
     }
 }
 
 void setup() {
+    stripStage.setBrightness(255);
+    for (int i = 0; i < STRIP_STAGE_SIZE; i++)
+        stripStage.setPixelColor(i, 255, 63, 0);
+    stripStage.show();
+
     ESP_LOGI(MAIN_TAG, "InitializeAndCheckI2CConnection...");
 
     Wire.begin();
@@ -48,26 +83,48 @@ void setup() {
 }
 
 void loop() {
-    setSpeedForAllServos(30);
+    ESP_LOGI(MAIN_TAG, "Walk Forward...");
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90 - 30);
 
-    for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE + 0);
-    }
-    delay(6000);
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 60;
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(90);
 
-    for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE);
-    }
-    delay(6000);
+    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->mSpeed = 60;
+    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->startEaseTo(20);
 
-    for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE - 70);
-    }
-    delay(6000);
+    delay(1800);
 
-    for (uint_fast8_t i = 0; i <= ServoEasing::sServoArrayMaxIndex; ++i) {
-        ServoEasing::ServoEasingArray[i]->startEaseTo(INIT_DEGREE);
-    }
-    delay(6000);
+    ESP_LOGI(MAIN_TAG, "Walk Backward...");
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90 + 10);
+
+    delay(300);
+
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 45;
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(INIT_DEGREE_KNEE);
+
+    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->mSpeed = 45;
+    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->startEaseTo(INIT_DEGREE_ANKLE);
+
+    delay(1800 - 500 + 800);
+
+    ESP_LOGI(MAIN_TAG, "Stand Up!");
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90 - 15);
+
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 45;
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(60);
+
+    delay(1000);
+
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
+    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90);
+
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 45;
+    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(INIT_DEGREE_KNEE);
+
+    delay(1000 * 10);
+
 }
 
