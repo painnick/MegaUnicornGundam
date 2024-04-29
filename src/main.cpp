@@ -2,10 +2,12 @@
 
 #include "common.h"
 #include "controllers/Mp3Controller.h"
-#include "controllers/HipJointController.h"
+#include "controllers/HipJointLeftController.h"
+#include "controllers/HipJointRightController.h"
 #include "controllers/KneeController.h"
 #include "controllers/AnkleController.h"
 #include "controllers/BodyController.h"
+#include "controllers/NeckController.h"
 
 #include <Wire.h>
 
@@ -23,19 +25,21 @@
 #define HipJointRight_PIN 7
 
 #define Body_PIN 8
+#define Neck_PIN 9
 
 #define PIN_STRIP_STAGE 18
 #define STRIP_STAGE_SIZE 4
 Adafruit_NeoPixel stripStage = Adafruit_NeoPixel(STRIP_STAGE_SIZE, PIN_STRIP_STAGE, NEO_GRB + NEO_KHZ800);
 
 
-HipJointController HipJointLeft(PCA9685_DEFAULT_ADDRESS, "HipJoint-Left");
-HipJointController HipJointRight(PCA9685_DEFAULT_ADDRESS, "HipJoint-Right");
+HipJointLeftController HipJointLeft(PCA9685_DEFAULT_ADDRESS, "HipJoint-Left");
+HipJointRightController HipJointRight(PCA9685_DEFAULT_ADDRESS, "HipJoint-Right");
 KneeController KneeLeft(PCA9685_DEFAULT_ADDRESS, "Knee-Left");
 KneeController KneeRight(PCA9685_DEFAULT_ADDRESS, "Knee-Right");
 AnkleController AnkleLeft(PCA9685_DEFAULT_ADDRESS, "Ankle-Left");
 AnkleController AnkleRight(PCA9685_DEFAULT_ADDRESS, "Ankle-Right");
 BodyController Body(PCA9685_DEFAULT_ADDRESS, "Body");
+NeckController Neck(PCA9685_DEFAULT_ADDRESS, "Neck");
 
 void getAndAttach16ServosToPCA9685Expander(uint8_t aPCA9685I2CAddress) {
     HipJointLeft.attach(HipJointLeft_PIN);
@@ -48,6 +52,7 @@ void getAndAttach16ServosToPCA9685Expander(uint8_t aPCA9685I2CAddress) {
     AnkleRight.attach(AnkleRight_PIN);
 
     Body.attach(Body_PIN);
+    Neck.attach(Neck_PIN);
 }
 
 void setup() {
@@ -68,70 +73,103 @@ void setup() {
 
 void loop() {
     ESP_LOGI(MAIN_TAG, "Left Step...");
+
+    KneeLeft.setEasingType(EASE_ELASTIC_OUT);
+    KneeLeft.setSpeed(2000);
+    KneeLeft.startBackwardTo(45);
+
+    delay(1000);
+
     Body.setSpeed(15);
-    Body.backward(15);
+    Body.startBackwardTo(15);
 
-    HipJointLeft.setSpeed(30);
-    HipJointLeft.forward(30);
+    Neck.setSpeed(10);
+    Neck.startBackwardTo(10);
 
-    KneeLeft.setSpeed(60);
-    KneeLeft.backward(45);
+    HipJointLeft.setSpeed(20);
+    HipJointLeft.startForwardTo(30);
 
     AnkleLeft.setSpeed(60);
-    AnkleLeft.forward(20);
+    AnkleLeft.startForwardTo(20);
 
     delay(1800);
 
     ESP_LOGI(MAIN_TAG, "Stand up...");
 
     Body.setSpeed(15);
-    Body.standUp();
+    Body.startStandUp();
+
+    Neck.setSpeed(10);
+    Neck.startStandUp();
 
     HipJointLeft.setSpeed(30);
-    HipJointLeft.standUp();
+    HipJointLeft.startStandUp();
 
     delay(300);
 
+    KneeLeft.setEasingType(EASE_LINEAR);
     KneeLeft.setSpeed(50);
-    KneeLeft.standUp();
+    KneeLeft.startStandUp();
 
     AnkleLeft.setSpeed(45);
-    AnkleLeft.standUp();
+    AnkleLeft.startStandUp();
 
     delay(1800);
 
     ESP_LOGI(MAIN_TAG, "Right Step...");
     Body.setSpeed(15);
-    Body.forward(15);
+    Body.startForwardTo(15);
+
+    Neck.setSpeed(10);
+    Neck.startForwardTo(10);
 
     HipJointRight.setSpeed(30);
-    HipJointRight.forward(30);
+    HipJointRight.startForwardTo(30);
 
     KneeRight.setSpeed(60);
-    KneeRight.backward(45);
+    KneeRight.startBackwardTo(45);
 
     AnkleRight.setSpeed(60);
-    AnkleRight.forward(20);
+    AnkleRight.startForwardTo(20);
 
     delay(1800);
 
     ESP_LOGI(MAIN_TAG, "Stand up...");
 
     Body.setSpeed(15);
-    Body.standUp();
+    Body.startStandUp();
+
+    Neck.setSpeed(10);
+    Neck.startStandUp();
 
     HipJointRight.setSpeed(30);
-    HipJointRight.standUp();
+    HipJointRight.startStandUp();
 
     delay(300);
 
     KneeRight.setSpeed(50);
-    KneeRight.standUp();
+    KneeRight.startStandUp();
 
     AnkleRight.setSpeed(45);
-    AnkleRight.standUp();
+    AnkleRight.startStandUp();
+
+    delay(1000 * 2);
+
+    Neck.setSpeed(30);
+    Neck.forward(20);
+
+    delay(500);
+
+    Neck.standUp();
+
+    delay(500);
+
+    Neck.backward(20);
+
+    delay(500);
+
+    Neck.standUp();
 
     delay(1000 * 10);
-
 }
 

@@ -5,7 +5,7 @@
 
 #include "DefaultServoController.h"
 
-class HipJointController : public DefaultServoController {
+class HipJointLeftController : public DefaultServoController {
 public:
     int initDegree() override { return 90; }
 
@@ -13,6 +13,6 @@ public:
 
     int maxDegree() override { return 90 + 10; }
 
-    explicit HipJointController(uint8_t aPCA9685I2CAddress, const String &nickName) : DefaultServoController(
+    explicit HipJointLeftController(uint8_t aPCA9685I2CAddress, const String &nickName) : DefaultServoController(
             aPCA9685I2CAddress, nickName) {}
 };

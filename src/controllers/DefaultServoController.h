@@ -33,7 +33,7 @@ public:
     }
 
     virtual void setSpeed(uint_fast16_t speed) {
-        ServoEasing::ServoEasingArray[servoIndex]->mSpeed = speed;
+        ServoEasing::ServoEasingArray[servoIndex]->setSpeed(speed);
     };
 
     int startEaseTo(int targetDegree) const {
@@ -42,18 +42,37 @@ public:
         return ServoEasing::ServoEasingArray[servoIndex]->getEndMicrosecondsOrUnits();
     }
 
-    void standUp() {
+    void easeTo(int targetDegree) const {
+        ESP_LOGI(DEFAULT_SERVO_TAG, "(%s) EaseTo %3d", &nickName, targetDegree);
+        ServoEasing::ServoEasingArray[servoIndex]->easeTo(targetDegree);
+    }
+
+    void startStandUp() {
         startEaseTo(initDegree());
     }
 
-    void forward(int targetDegree) {
+    void standUp() {
+        easeTo(initDegree());
+    }
+
+    virtual void startForwardTo(int targetDegree) {
         int degree = initDegree() - targetDegree;
         startEaseTo(max(degree, minDegree()));
     };
 
-    void backward(int targetDegree) {
+    virtual void forward(int targetDegree) {
+        int degree = initDegree() - targetDegree;
+        easeTo(max(degree, minDegree()));
+    };
+
+    virtual void startBackwardTo(int targetDegree) {
         int degree = initDegree() + targetDegree;
         startEaseTo(min(degree, maxDegree()));
+    };
+
+    virtual void backward(int targetDegree) {
+        int degree = initDegree() + targetDegree;
+        easeTo(min(degree, maxDegree()));
     };
 
     void setEasingType(uint_fast8_t aEasingType) const {
