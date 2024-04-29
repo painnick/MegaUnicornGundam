@@ -1,69 +1,53 @@
 #include <Arduino.h>
-#include "esp_log.h"
 
 #include "common.h"
 #include "controllers/Mp3Controller.h"
+#include "controllers/HipJointController.h"
+#include "controllers/KneeController.h"
+#include "controllers/AnkleController.h"
+#include "controllers/BodyController.h"
 
-#define USE_PCA9685_SERVO_EXPANDER
-#define DISABLE_COMPLEX_FUNCTIONS
-#define MAX_EASING_SERVOS 16
-#define ENABLE_EASE_CUBIC
-#define DEBUG
-
-#define SG90msForServo0Degree 500
-#define SG90msForServo180Degree 2500
-
-#include <ServoEasing.hpp>
+#include <Wire.h>
 
 #include <Adafruit_NeoPixel.h>
 
 #define MAIN_TAG "main"
 
-#define INIT_DEGREE_COMMON 90
-#define INIT_DEGREE_KNEE 45
-#define INIT_DEGREE_ANKLE 30
-
-// Ankle 20(Up tiptoe)~90(Down tiptoe)
 #define AnkleLeft_PIN  2
 #define AnkleRight_PIN  3
 
-// Knee 45(Stand)~90(Fold)
 #define KneeLeft_PIN  4
 #define KneeRight_PIN  5
 
 #define HipJointLeft_PIN 6
 #define HipJointRight_PIN 7
 
+#define Body_PIN 8
 
 #define PIN_STRIP_STAGE 18
 #define STRIP_STAGE_SIZE 4
 Adafruit_NeoPixel stripStage = Adafruit_NeoPixel(STRIP_STAGE_SIZE, PIN_STRIP_STAGE, NEO_GRB + NEO_KHZ800);
 
+
+HipJointController HipJointLeft(PCA9685_DEFAULT_ADDRESS, "HipJoint-Left");
+HipJointController HipJointRight(PCA9685_DEFAULT_ADDRESS, "HipJoint-Right");
+KneeController KneeLeft(PCA9685_DEFAULT_ADDRESS, "Knee-Left");
+KneeController KneeRight(PCA9685_DEFAULT_ADDRESS, "Knee-Right");
+AnkleController AnkleLeft(PCA9685_DEFAULT_ADDRESS, "Ankle-Left");
+AnkleController AnkleRight(PCA9685_DEFAULT_ADDRESS, "Ankle-Right");
+BodyController Body(PCA9685_DEFAULT_ADDRESS, "Body");
+
 void getAndAttach16ServosToPCA9685Expander(uint8_t aPCA9685I2CAddress) {
-    ServoEasing *tServoEasingObjectPtr;
+    HipJointLeft.attach(HipJointLeft_PIN);
+    HipJointRight.attach(HipJointRight_PIN);
 
-    Serial.print(F("Get ServoEasing objects and attach servos to PCA9685 expander at address=0x"));
-    Serial.println(aPCA9685I2CAddress, HEX);
-    for (int i = 0; i < PCA9685_MAX_CHANNELS; ++i) {
-        tServoEasingObjectPtr = new ServoEasing(aPCA9685I2CAddress);
-        int initDegree = INIT_DEGREE_COMMON;
-        switch (i) {
-            case KneeLeft_PIN:
-            case KneeRight_PIN:
-                initDegree = INIT_DEGREE_KNEE;
-                break;
-            case AnkleLeft_PIN:
-            case AnkleRight_PIN:
-                initDegree = INIT_DEGREE_ANKLE;
-                break;
-            default:
-                initDegree = INIT_DEGREE_COMMON;
-        }
+    KneeLeft.attach(KneeLeft_PIN);
+    KneeRight.attach(KneeRight_PIN);
 
-        if (tServoEasingObjectPtr->attach(i, initDegree, SG90msForServo0Degree, SG90msForServo180Degree) == INVALID_SERVO) {
-            ESP_LOGE(MAIN_TAG, "Not Attached! #%d", i);
-        }
-    }
+    AnkleLeft.attach(AnkleLeft_PIN);
+    AnkleRight.attach(AnkleRight_PIN);
+
+    Body.attach(Body_PIN);
 }
 
 void setup() {
@@ -83,46 +67,69 @@ void setup() {
 }
 
 void loop() {
-    ESP_LOGI(MAIN_TAG, "Walk Forward...");
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90 - 30);
+    ESP_LOGI(MAIN_TAG, "Left Step...");
+    Body.setSpeed(15);
+    Body.backward(15);
 
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 60;
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(90);
+    HipJointLeft.setSpeed(30);
+    HipJointLeft.forward(30);
 
-    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->mSpeed = 60;
-    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->startEaseTo(20);
+    KneeLeft.setSpeed(60);
+    KneeLeft.backward(45);
+
+    AnkleLeft.setSpeed(60);
+    AnkleLeft.forward(20);
 
     delay(1800);
 
-    ESP_LOGI(MAIN_TAG, "Walk Backward...");
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90 + 10);
+    ESP_LOGI(MAIN_TAG, "Stand up...");
+
+    Body.setSpeed(15);
+    Body.standUp();
+
+    HipJointLeft.setSpeed(30);
+    HipJointLeft.standUp();
 
     delay(300);
 
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 45;
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(INIT_DEGREE_KNEE);
+    KneeLeft.setSpeed(50);
+    KneeLeft.standUp();
 
-    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->mSpeed = 45;
-    ServoEasing::ServoEasingArray[AnkleLeft_PIN]->startEaseTo(INIT_DEGREE_ANKLE);
+    AnkleLeft.setSpeed(45);
+    AnkleLeft.standUp();
 
-    delay(1800 - 500 + 800);
+    delay(1800);
 
-    ESP_LOGI(MAIN_TAG, "Stand Up!");
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90 - 15);
+    ESP_LOGI(MAIN_TAG, "Right Step...");
+    Body.setSpeed(15);
+    Body.forward(15);
 
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 45;
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(60);
+    HipJointRight.setSpeed(30);
+    HipJointRight.forward(30);
 
-    delay(1000);
+    KneeRight.setSpeed(60);
+    KneeRight.backward(45);
 
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->mSpeed = 30;
-    ServoEasing::ServoEasingArray[HipJointLeft_PIN]->startEaseTo(90);
+    AnkleRight.setSpeed(60);
+    AnkleRight.forward(20);
 
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->mSpeed = 45;
-    ServoEasing::ServoEasingArray[KneeLeft_PIN]->startEaseTo(INIT_DEGREE_KNEE);
+    delay(1800);
+
+    ESP_LOGI(MAIN_TAG, "Stand up...");
+
+    Body.setSpeed(15);
+    Body.standUp();
+
+    HipJointRight.setSpeed(30);
+    HipJointRight.standUp();
+
+    delay(300);
+
+    KneeRight.setSpeed(50);
+    KneeRight.standUp();
+
+    AnkleRight.setSpeed(45);
+    AnkleRight.standUp();
 
     delay(1000 * 10);
 
