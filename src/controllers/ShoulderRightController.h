@@ -14,5 +14,7 @@ public:
     int maxDegree() override { return 180; }
 
     explicit ShoulderRightController(uint8_t aPCA9685I2CAddress, const String &nickName) : DefaultServoController(
-            aPCA9685I2CAddress, nickName) {}
+            aPCA9685I2CAddress, nickName) {
+        reverseDirection = true;
+    }
 };

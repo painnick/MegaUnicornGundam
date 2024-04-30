@@ -3,9 +3,9 @@
 //
 #pragma once
 
-#include "DefaultServoController.h"
+#include "XYServoController.h"
 
-class BodyController : public DefaultServoController {
+class BodyController : public XYServoController {
 public:
     int initDegree() override { return 90; }
 
@@ -13,6 +13,7 @@ public:
 
     int maxDegree() override { return 120; }
 
-    explicit BodyController(uint8_t aPCA9685I2CAddress, const String &nickName) : DefaultServoController(
-            aPCA9685I2CAddress, nickName) {}
+    explicit BodyController(uint8_t aPCA9685I2CAddress, const String &nickName) : XYServoController(
+            aPCA9685I2CAddress, nickName) {
+    }
 };

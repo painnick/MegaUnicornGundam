@@ -13,16 +13,8 @@ public:
 
     int maxDegree() override { return 135; }
 
-    void forward(int targetDegree) override {
-        int degree = initDegree() + targetDegree;
-        easeTo(max(degree, minDegree()));
-    };
-
-    void backward(int targetDegree) override {
-        int degree = initDegree() - targetDegree;
-        easeTo(min(degree, maxDegree()));
-    };
-
     explicit Neck2Controller(uint8_t aPCA9685I2CAddress, const String &nickName) : DefaultServoController(
-            aPCA9685I2CAddress, nickName) {}
+            aPCA9685I2CAddress, nickName) {
+        reverseDirection = true;
+    }
 };

@@ -26,13 +26,13 @@ public:
 
     virtual ~DefaultServoController() = default;
 
-    virtual void attach(int pinNo) {
-        ESP_LOGI(DEFAULT_SERVO_TAG, "(%s) Attached [Pin #%2d] [Init %3d] [Min %3d] [Max %3d]",
-                 &nickName, pinNo, initDegree(), msForServo0Degree(), msForServo180Degree());
+    void attach(int pinNo) {
         servoIndex = tServoEasingObjectPtr->attach(pinNo, initDegree(), msForServo0Degree(), msForServo180Degree());
+        ESP_LOGI(DEFAULT_SERVO_TAG, "(%s) Attached [Pin #%2d] [Servo #%2d] [Init %3d] [Min %3d] [Max %3d]",
+                 &nickName, pinNo, servoIndex, initDegree(), msForServo0Degree(), msForServo180Degree());
     }
 
-    virtual void setSpeed(uint_fast16_t speed) {
+    void setSpeed(uint_fast16_t speed) const {
         ServoEasing::ServoEasingArray[servoIndex]->setSpeed(speed);
     };
 
@@ -55,24 +55,24 @@ public:
         easeTo(initDegree());
     }
 
-    virtual void startForwardTo(int targetDegree) {
-        int degree = initDegree() - targetDegree;
+    void startForwardTo(int targetDegree) {
+        int degree = initDegree() - targetDegree * (reverseDirection ? -1 : 1);
         startEaseTo(max(degree, minDegree()));
     };
 
 
-    virtual void startBackwardTo(int targetDegree) {
-        int degree = initDegree() + targetDegree;
+    void startBackwardTo(int targetDegree) {
+        int degree = initDegree() + targetDegree * (reverseDirection ? -1 : 1);
         startEaseTo(min(degree, maxDegree()));
     };
 
-    virtual void forward(int targetDegree) {
-        int degree = initDegree() - targetDegree;
+    void forward(int targetDegree) {
+        int degree = initDegree() - targetDegree * (reverseDirection ? -1 : 1);
         easeTo(max(degree, minDegree()));
     };
 
-    virtual void backward(int targetDegree) {
-        int degree = initDegree() + targetDegree;
+    void backward(int targetDegree) {
+        int degree = initDegree() + targetDegree * (reverseDirection ? -1 : 1);
         easeTo(min(degree, maxDegree()));
     };
 
@@ -84,4 +84,5 @@ protected:
     String nickName;
     int servoIndex = -1;
     ServoEasing *tServoEasingObjectPtr;
+    bool reverseDirection = false;
 };

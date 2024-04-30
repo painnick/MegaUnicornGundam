@@ -3,9 +3,9 @@
 //
 #pragma once
 
-#include "DefaultServoController.h"
+#include "XYServoController.h"
 
-class NeckController : public DefaultServoController {
+class NeckController : public XYServoController {
 public:
     int initDegree() override { return 90; }
 
@@ -13,6 +13,8 @@ public:
 
     int maxDegree() override { return 120; }
 
-    explicit NeckController(uint8_t aPCA9685I2CAddress, const String &nickName) : DefaultServoController(
-            aPCA9685I2CAddress, nickName) {}
+    explicit NeckController(uint8_t aPCA9685I2CAddress, const String &nickName) : XYServoController(
+            aPCA9685I2CAddress, nickName) {
+        reverseDirection = true;
+    }
 };

@@ -16,15 +16,7 @@ public:
     int maxDegree() override { return 90 + 30; }
 
     explicit HipJointRightController(uint8_t aPCA9685I2CAddress, const String &nickName) : DefaultServoController(
-            aPCA9685I2CAddress, nickName) {}
-
-    void startForwardTo(int targetDegree) override {
-        int degree = initDegree() + targetDegree;
-        startEaseTo(min(degree, maxDegree()));
-    };
-
-    void startBackwardTo(int targetDegree) override {
-        int degree = initDegree() - targetDegree;
-        startEaseTo(max(degree, minDegree()));
-    };
+            aPCA9685I2CAddress, nickName) {
+        reverseDirection = true;
+    }
 };
