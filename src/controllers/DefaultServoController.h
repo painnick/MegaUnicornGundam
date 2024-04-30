@@ -60,14 +60,15 @@ public:
         startEaseTo(max(degree, minDegree()));
     };
 
-    virtual void forward(int targetDegree) {
-        int degree = initDegree() - targetDegree;
-        easeTo(max(degree, minDegree()));
-    };
 
     virtual void startBackwardTo(int targetDegree) {
         int degree = initDegree() + targetDegree;
         startEaseTo(min(degree, maxDegree()));
+    };
+
+    virtual void forward(int targetDegree) {
+        int degree = initDegree() - targetDegree;
+        easeTo(max(degree, minDegree()));
     };
 
     virtual void backward(int targetDegree) {
