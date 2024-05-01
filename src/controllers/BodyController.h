@@ -15,5 +15,6 @@ public:
 
     explicit BodyController(uint8_t aPCA9685I2CAddress, const String &nickName) : XYServoController(
             aPCA9685I2CAddress, nickName) {
+        this->reverseDirection = true;
     }
 };

@@ -64,15 +64,15 @@ public:
         easeTo(initDegree());
     }
 
-    void startForwardTo(int targetDegree) {
+    int startForwardTo(int targetDegree) {
         int degree = initDegree() - targetDegree * (reverseDirection ? -1 : 1);
-        startEaseTo(max(degree, minDegree()));
+        return startEaseTo(max(degree, minDegree()));
     };
 
 
-    void startBackwardTo(int targetDegree) {
+    int startBackwardTo(int targetDegree) {
         int degree = initDegree() + targetDegree * (reverseDirection ? -1 : 1);
-        startEaseTo(min(degree, maxDegree()));
+        return startEaseTo(min(degree, maxDegree()));
     };
 
     void forward(int targetDegree) {

@@ -42,20 +42,19 @@ void setup() {
 void loop() {
     for(int i = 0; i < 2; i ++) {
         movementManager.leftStep();
-
         movementManager.standUp();
-
         movementManager.rightStep();
-
         movementManager.standUp();
     }
     delay(1000);
 
     movementManager.headXY();
-
     delay(1000);
 
     movementManager.headZ();
+    delay(1000);
+
+    movementManager.raiseHand();
 
     delay(1000 * 10);
 }

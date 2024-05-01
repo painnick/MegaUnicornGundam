@@ -191,6 +191,33 @@ public:
         delay(1000);
     }
 
+    void raiseHand() {
+        ESP_LOGI(MOVEMENT_TAG, "Raise Hand...");
+
+        ShoulderLeft->setSpeed(55);
+        ShoulderLeft->startForwardTo(90);
+
+        Body->startRightTo(15);
+        Neck->startLeftTo(15);
+
+        delay(1000 * 3);
+
+        Neck->left(30);
+        delay(1000);
+        Neck->standUp();
+
+        delay(1000 * 3);
+
+        ShoulderLeft->startStandUp();
+        Body->startStandUp();
+
+        delay(1000 * 3);
+
+        Neck->left(15);
+        delay(1000);
+        Neck->standUp();
+    }
+
 protected:
     HipJointLeftController *HipJointLeft;
     HipJointRightController *HipJointRight;
