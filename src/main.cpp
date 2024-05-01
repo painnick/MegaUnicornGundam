@@ -24,11 +24,13 @@ void setup() {
         stripStage.setPixelColor(i, 255, 63, 0);
     stripStage.show();
 
+#ifdef USE_PCA9685_SERVO_EXPANDER
     ESP_LOGI(MAIN_TAG, "InitializeAndCheckI2CConnection...");
 
     Wire.begin();
     checkI2CConnection(PCA9685_DEFAULT_ADDRESS, &Serial);
     ESP_LOGI(MAIN_TAG, "I2C Connected");
+#endif
 
     movementManager.attach();
     ESP_LOGI(MAIN_TAG, "Attached!");
