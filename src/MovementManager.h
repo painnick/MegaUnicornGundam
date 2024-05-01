@@ -124,17 +124,19 @@ public:
         // --------------------
         // 왼쪽 다리 들기
         // --------------------
-        HipJointLeft->setSpeed(20);
+        HipJointLeft->setSpeed(30);
         HipJointLeft->startForwardTo(30);
 
         HipJointRight->setSpeed(10);
         HipJointRight->startBackwardTo(10);
 
         // 고관절과 반대 방향
-        ShoulderLeft->startBackwardTo(20);
-        ShoulderRight->startForwardTo(20);
+        ShoulderLeft->setSpeed(30);
+        ShoulderLeft->startBackwardTo(10);
+        ShoulderRight->setSpeed(30);
+        ShoulderRight->startForwardTo(30);
 
-        delay(1800);
+        delay(1500);
     }
 
     void rightStep() {
@@ -151,17 +153,19 @@ public:
         // --------------------
         // 오른쪽 다리 들기
         // --------------------
-        HipJointLeft->setSpeed(20);
-        HipJointLeft->startBackwardTo(30);
+        HipJointLeft->setSpeed(10);
+        HipJointLeft->startBackwardTo(10);
 
-        HipJointRight->setSpeed(10);
-        HipJointRight->startForwardTo(10);
+        HipJointRight->setSpeed(30);
+        HipJointRight->startForwardTo(30);
 
         // 고관절과 반대 방향
-        ShoulderLeft->startForwardTo(20);
-        ShoulderRight->startBackwardTo(20);
+        ShoulderLeft->setSpeed(30);
+        ShoulderLeft->startForwardTo(30);
+        ShoulderRight->setSpeed(30);
+        ShoulderRight->startBackwardTo(10);
 
-        delay(1800);
+        delay(1500);
     }
 
     void standUp() {
@@ -173,7 +177,7 @@ public:
         HipJointLeft->setSpeed(30);
         HipJointLeft->startStandUp();
 
-        HipJointRight->setSpeed(10);
+        HipJointRight->setSpeed(30);
         HipJointRight->startStandUp();
 
         ShoulderLeft->startStandUp();
@@ -188,7 +192,7 @@ public:
         KneeRight->setSpeed(50);
         KneeRight->startStandUp();
 
-        delay(1000);
+        delay(800);
     }
 
     void raiseHand() {
