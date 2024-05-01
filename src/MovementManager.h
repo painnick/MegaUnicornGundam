@@ -12,6 +12,8 @@
 #include "controllers/Neck2Controller.h"
 #include "controllers/ShoulderLeftController.h"
 #include "controllers/ShoulderRightController.h"
+#include "controllers/ArmLeftController.h"
+#include "controllers/ArmRightController.h"
 
 #define AnkleLeft_PIN  2
 #define AnkleRight_PIN  3
@@ -25,8 +27,8 @@
 #define Body_PIN 8
 #define Neck_PIN 9
 
-#define ArmLeft_PIN 10
-#define ArmRight_PIN 11
+#define ArmLeft_PIN 18
+#define ArmRight_PIN 19
 
 #define ShoulderLeft_PIN 12
 #define ShoulderRight_PIN 13
@@ -47,8 +49,8 @@ public:
         Body = new BodyController(PCA9685_DEFAULT_ADDRESS, "Body");
         Neck = new NeckController(PCA9685_DEFAULT_ADDRESS, "Neck");
 
-        ArmLeft = new DefaultServoController(PCA9685_DEFAULT_ADDRESS, "Arm-Left");
-        ArmRight = new DefaultServoController(PCA9685_DEFAULT_ADDRESS, "Arm-Right");
+        ArmLeft = new ArmLeftController("Arm-Left");
+        ArmRight = new ArmRightController("Arm-Right");
 
         ShoulderLeft = new ShoulderLeftController(PCA9685_DEFAULT_ADDRESS, "Shoulder-Left");
         ShoulderRight = new ShoulderRightController(PCA9685_DEFAULT_ADDRESS, "Shoulder-Right");
@@ -76,10 +78,11 @@ public:
         ArmRight->attach(ArmRight_PIN);
 
         Neck2->attach(Neck2_PIN);
+        ESP_LOGI(MOVEMENT_TAG, "Attached.");
     }
 
     ~MovementManager() = default;
-    
+
     void initSpeed() {
         Body->setSpeed(15);
         Neck->setSpeed(20);
@@ -173,32 +176,39 @@ public:
     }
 
     void standUp() {
-        ESP_LOGI(MOVEMENT_TAG, "StandUp...");
+//        ESP_LOGI(MOVEMENT_TAG, "StandUp...");
+//
+//        Body->startStandUp();
+//        Neck->startStandUp();
+//
+//        HipJointLeft->setSpeed(30);
+//        HipJointLeft->startStandUp();
+//
+//        HipJointRight->setSpeed(10);
+//        HipJointRight->startStandUp();
+//
+//        ShoulderLeft->startStandUp();
+//        ShoulderRight->startStandUp();
+//
+//        // 무릎을 조금 늦게 폄
+//        delay(300);
+//
+//        KneeLeft->setSpeed(50);
+//        KneeLeft->startStandUp();
+//
+//        KneeRight->setSpeed(50);
+//        KneeRight->startStandUp();
+//
+//        delay(1000);
+    }
 
-        Body->startStandUp();
-        Neck->startStandUp();
+    void raiseHands() {
+        ArmLeft->setSpeed(30);
+        ArmLeft->backward(45);
 
-        HipJointLeft->setSpeed(30);
-        HipJointLeft->startStandUp();
+        delay(3000);
 
-        HipJointRight->setSpeed(10);
-        HipJointRight->startStandUp();
-
-        ShoulderLeft->startStandUp();
-        ShoulderRight->startStandUp();
-
-        // 무릎을 조금 늦게 폄
-        delay(300);
-
-        KneeLeft->setEasingType(EASE_LINEAR);
-        KneeLeft->setSpeed(50);
-        KneeLeft->startStandUp();
-
-        KneeRight->setEasingType(EASE_LINEAR);
-        KneeRight->setSpeed(50);
-        KneeRight->startStandUp();
-
-        delay(1000);
+        ArmLeft->standUp();
     }
 
 protected:
@@ -211,8 +221,8 @@ protected:
     BodyController *Body;
     NeckController *Neck;
 
-    DefaultServoController *ArmLeft;
-    DefaultServoController *ArmRight;
+    ArmLeftController *ArmLeft;
+    ArmRightController *ArmRight;
 
     ShoulderLeftController *ShoulderLeft;
     ShoulderRightController *ShoulderRight;
