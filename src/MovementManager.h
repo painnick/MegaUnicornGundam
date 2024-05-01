@@ -165,30 +165,30 @@ public:
     }
 
     void standUp() {
-//        ESP_LOGI(MOVEMENT_TAG, "StandUp...");
-//
-//        Body->startStandUp();
-//        Neck->startStandUp();
-//
-//        HipJointLeft->setSpeed(30);
-//        HipJointLeft->startStandUp();
-//
-//        HipJointRight->setSpeed(10);
-//        HipJointRight->startStandUp();
-//
-//        ShoulderLeft->startStandUp();
-//        ShoulderRight->startStandUp();
-//
-//        // 무릎을 조금 늦게 폄
-//        delay(300);
-//
-//        KneeLeft->setSpeed(50);
-//        KneeLeft->startStandUp();
-//
-//        KneeRight->setSpeed(50);
-//        KneeRight->startStandUp();
-//
-//        delay(1000);
+        ESP_LOGI(MOVEMENT_TAG, "StandUp...");
+
+        Body->startStandUp();
+        Neck->startStandUp();
+
+        HipJointLeft->setSpeed(30);
+        HipJointLeft->startStandUp();
+
+        HipJointRight->setSpeed(10);
+        HipJointRight->startStandUp();
+
+        ShoulderLeft->startStandUp();
+        ShoulderRight->startStandUp();
+
+        // 무릎을 조금 늦게 폄
+        delay(300);
+
+        KneeLeft->setSpeed(50);
+        KneeLeft->startStandUp();
+
+        KneeRight->setSpeed(50);
+        KneeRight->startStandUp();
+
+        delay(1000);
     }
 
 protected:
