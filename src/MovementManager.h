@@ -12,8 +12,6 @@
 #include "controllers/Neck2Controller.h"
 #include "controllers/ShoulderLeftController.h"
 #include "controllers/ShoulderRightController.h"
-#include "controllers/ArmLeftController.h"
-#include "controllers/ArmRightController.h"
 
 #define AnkleLeft_PIN  2
 #define AnkleRight_PIN  3
@@ -26,9 +24,6 @@
 
 #define Body_PIN 8
 #define Neck_PIN 9
-
-#define ArmLeft_PIN 18
-#define ArmRight_PIN 19
 
 #define ShoulderLeft_PIN 12
 #define ShoulderRight_PIN 13
@@ -48,9 +43,6 @@ public:
         AnkleRight = new AnkleController(PCA9685_DEFAULT_ADDRESS, "Ankle-Right");
         Body = new BodyController(PCA9685_DEFAULT_ADDRESS, "Body");
         Neck = new NeckController(PCA9685_DEFAULT_ADDRESS, "Neck");
-
-        ArmLeft = new ArmLeftController("Arm-Left");
-        ArmRight = new ArmRightController("Arm-Right");
 
         ShoulderLeft = new ShoulderLeftController(PCA9685_DEFAULT_ADDRESS, "Shoulder-Left");
         ShoulderRight = new ShoulderRightController(PCA9685_DEFAULT_ADDRESS, "Shoulder-Right");
@@ -73,9 +65,6 @@ public:
 
         ShoulderLeft->attach(ShoulderLeft_PIN);
         ShoulderRight->attach(ShoulderRight_PIN);
-
-        ArmLeft->attach(ArmLeft_PIN);
-        ArmRight->attach(ArmRight_PIN);
 
         Neck2->attach(Neck2_PIN);
         ESP_LOGI(MOVEMENT_TAG, "Attached.");
@@ -202,15 +191,6 @@ public:
 //        delay(1000);
     }
 
-    void raiseHands() {
-        ArmLeft->setSpeed(30);
-        ArmLeft->backward(45);
-
-        delay(3000);
-
-        ArmLeft->standUp();
-    }
-
 protected:
     HipJointLeftController *HipJointLeft;
     HipJointRightController *HipJointRight;
@@ -220,9 +200,6 @@ protected:
     AnkleController *AnkleRight;
     BodyController *Body;
     NeckController *Neck;
-
-    ArmLeftController *ArmLeft;
-    ArmRightController *ArmRight;
 
     ShoulderLeftController *ShoulderLeft;
     ShoulderRightController *ShoulderRight;

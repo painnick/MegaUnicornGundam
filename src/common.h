@@ -11,7 +11,6 @@
 #define SG90msForServo180Degree 2500
 
 #define USE_PCA9685_SERVO_EXPANDER
-#define USE_SERVO_LIB
 #define MAX_EASING_SERVOS 16
 
 #include <ServoEasing.hpp>
