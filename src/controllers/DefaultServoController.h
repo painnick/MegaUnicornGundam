@@ -21,30 +21,39 @@ public:
 
     explicit DefaultServoController(uint8_t aPCA9685I2CAddress, const String &nickName) {
         this->nickName = nickName;
+#ifdef USE_PCA9685_SERVO_EXPANDER
         tServoEasingObjectPtr = new ServoEasing(aPCA9685I2CAddress);
+#else
+#error Define USE_PCA9685_SERVO_EXPANDER!
+#endif
+    }
+
+    DefaultServoController(const String &nickName) {
+        this->nickName = nickName;
+        tServoEasingObjectPtr = new ServoEasing();
     };
 
     virtual ~DefaultServoController() = default;
 
-    void attach(int pinNo) {
+    virtual void attach(int pinNo) {
         servoIndex = tServoEasingObjectPtr->attach(pinNo, initDegree(), msForServo0Degree(), msForServo180Degree());
-        ESP_LOGI(DEFAULT_SERVO_TAG, "(%s) Attached [Pin #%2d] [Servo #%2d] [Init %3d] [Min %3d] [Max %3d]",
+        ESP_LOGI(DEFAULT_SERVO_TAG, "(%s) Attached [Pin #%2d] [myServo #%2d] [Init %3d] [Min %3d] [Max %3d]",
                  &nickName, pinNo, servoIndex, initDegree(), msForServo0Degree(), msForServo180Degree());
     }
 
-    void setSpeed(uint_fast16_t speed) const {
-        ServoEasing::ServoEasingArray[servoIndex]->setSpeed(speed);
+    virtual void setSpeed(uint_fast16_t speed) {
+        tServoEasingObjectPtr->setSpeed(speed);
     };
 
-    int startEaseTo(int targetDegree) const {
+    virtual int startEaseTo(int targetDegree) {
         ESP_LOGI(DEFAULT_SERVO_TAG, "(%s) StartEaseTo %3d", &nickName, targetDegree);
-        ServoEasing::ServoEasingArray[servoIndex]->startEaseTo(targetDegree);
-        return ServoEasing::ServoEasingArray[servoIndex]->getEndMicrosecondsOrUnits();
+        tServoEasingObjectPtr->startEaseTo(targetDegree);
+        return tServoEasingObjectPtr->getEndMicrosecondsOrUnits();
     }
 
-    void easeTo(int targetDegree) const {
+    virtual void easeTo(int targetDegree) {
         ESP_LOGI(DEFAULT_SERVO_TAG, "(%s) EaseTo %3d", &nickName, targetDegree);
-        ServoEasing::ServoEasingArray[servoIndex]->easeTo(targetDegree);
+        tServoEasingObjectPtr->easeTo(targetDegree);
     }
 
     void startStandUp() {
@@ -75,10 +84,6 @@ public:
         int degree = initDegree() + targetDegree * (reverseDirection ? -1 : 1);
         easeTo(min(degree, maxDegree()));
     };
-
-    void setEasingType(uint_fast8_t aEasingType) const {
-        ServoEasing::ServoEasingArray[servoIndex]->setEasingType(aEasingType);
-    }
 
 protected:
     String nickName;
